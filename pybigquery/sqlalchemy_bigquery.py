@@ -284,11 +284,13 @@ class BigQueryDialect(DefaultDialect):
             credentials_path=None,
             location=None,
             credentials_info=None,
+            client = None
             *args, **kwargs):
         super(BigQueryDialect, self).__init__(*args, **kwargs)
         self.arraysize = arraysize
         self.credentials_path = credentials_path
         self.credentials_info = credentials_info
+        self.client = client
         self.location = location
         self.dataset_id = None
 
@@ -342,10 +344,13 @@ class BigQueryDialect(DefaultDialect):
         if self.credentials_path:
             credentials = service_account.Credentials.from_service_account_file(self.credentials_path)
             client = self._create_client_from_credentials(credentials, default_query_job_config, project_id)
-
+            
         elif self.credentials_info:
             credentials = service_account.Credentials.from_service_account_info(self.credentials_info)
             client = self._create_client_from_credentials(credentials, default_query_job_config, project_id)
+            
+        elif self.client:
+            client = self.client
 
         else:
             self._add_default_dataset_to_job_config(default_query_job_config, project_id, dataset_id)
